@@ -1,0 +1,223 @@
+﻿@model BlacksmithStoreWeb.Models.HomeViewModel
+
+@{
+    ViewData["Title"] = "BLACKSMITH STORE";
+}
+
+<div class="hero-section fade-in">
+    <div class="hero-content">
+        <h1 class="blacksmith-title">BLACKSMITH STORE</h1>
+        <p class="hero-subtitle">Викуй свій стиль. Преміальне взуття та аксесуари з кур'єрською доставкою до дверей.</p>
+        <a asp-controller="Home" asp-action="Catalog" class="btn-shop text-decoration-none">Відкрити каталог</a>
+    </div>
+</div>
+
+<div class="container mt-4 mb-4 slide-up">
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a asp-controller="Home" asp-action="Catalog" class="btn btn-outline-light rounded-pill px-4" style="border-color: var(--bs-orange); color: var(--bs-orange);">Всі товари</a>
+        <a asp-controller="Home" asp-action="Catalog" asp-route-categoryId="1" class="btn rounded-pill px-4" style="background-color: #111; color: white; border: 1px solid #333;">Чоловікам</a>
+        <a asp-controller="Home" asp-action="Catalog" asp-route-categoryId="2" class="btn rounded-pill px-4" style="background-color: #111; color: white; border: 1px solid #333;">Жінкам</a>
+        <a asp-controller="Home" asp-action="Catalog" asp-route-categoryId="3" class="btn rounded-pill px-4" style="background-color: #111; color: white; border: 1px solid #333;">Дітям</a>
+    </div>
+</div>
+
+<div class="container mt-5 mb-4">
+    <div class="row align-items-center" style="background: linear-gradient(90deg, #1a1a1a 0%, #2c1a12 100%); border-radius: 20px; padding: 30px; border-left: 5px solid var(--bs-orange);">
+        <div class="col-md-8 text-md-start text-center mb-3 mb-md-0">
+            <h2 class="text-light fw-bold" style="text-transform: uppercase; letter-spacing: 1px;">
+                Нова колекція вже <span style="color: var(--bs-orange);">в наявності</span>
+            </h2>
+            <p style="color: #bbb; font-size: 1.1rem; margin-bottom: 0;">
+                Оновлюй свій стиль першим. Обмежена кількість товару.
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end text-center">
+            <a asp-controller="Home" asp-action="NewArrivals" class="btn btn-lg pulse-button" style="background-color: var(--bs-orange); color: #000; font-weight: 800; border-radius: 30px; padding: 12px 30px; transition: transform 0.3s;">
+                ДИВИТИСЬ НОВИНКИ
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pulse-button {
+        animation: pulseOrange 2s infinite;
+    }
+
+        .pulse-button:hover {
+            transform: scale(1.05);
+            background-color: #ff9800;
+        }
+
+    @@keyframes pulseOrange {
+        0% {
+            box-shadow: 0 0 0 0 rgba(253, 126, 20, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 15px rgba(253, 126, 20, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(253, 126, 20, 0);
+        }
+    }
+</style>
+
+<div id="catalog" class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
+        <h2 class="section-title">🔥 Гарячі новинки</h2>
+    </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mb-5">
+        @foreach (var item in Model.NewArrivals)
+        {
+            @await Html.PartialAsync("_ProductCard", item)
+        }
+    </div>
+
+    <h2 class="section-title mb-4 mt-5">👟 Чоловіча колекція</h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mb-5">
+        @foreach (var item in Model.MensShoes)
+        {
+            @await Html.PartialAsync("_ProductCard", item)
+        }
+    </div>
+
+    <h2 class="section-title mb-4 mt-5">👠 Жіноча колекція</h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mb-5">
+        @foreach (var item in Model.WomensShoes)
+        {
+            @await Html.PartialAsync("_ProductCard", item)
+        }
+    </div>
+
+    <h2 class="section-title mb-4 mt-5">🎒 Топові аксесуари</h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mb-5">
+        @foreach (var item in Model.Accessories)
+        {
+            @await Html.PartialAsync("_ProductCard", item)
+        }
+    </div>
+</div>
+
+<div class="container mt-5 mb-5 slide-up">
+    <div class="row g-4 align-items-center p-4" style="background-color: var(--bs-black); border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+
+        <div class="col-lg-7">
+            <div style="position: relative; overflow: hidden; border-radius: 12px; border: 2px solid var(--bs-orange);">
+                <div style="position: absolute; top: 15px; left: 15px; background-color: var(--bs-orange); color: #000; padding: 5px 15px; font-weight: 900; z-index: 2; border-radius: 5px; text-transform: uppercase;">
+                    Офлайн магазин
+                </div>
+
+                <img src="~/Images/store-nikolsky.jpg" alt="Blacksmith Store у ТРЦ Нікольський" class="img-fluid w-100"
+                     style="object-fit: cover; height: 100%; min-height: 350px; transition: transform 0.4s ease;"
+                     onmouseover="this.style.transform='scale(1.05)'"
+                     onmouseout="this.style.transform='scale(1)'" />
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <h3 style="color: var(--bs-orange); font-weight: 900; text-transform: uppercase; margin-bottom: 20px;">
+                ЗАВІТАЙТЕ ДО НАС ОФЛАЙН!
+            </h3>
+
+            <p style="color: #ccc; font-size: 1.1rem; line-height: 1.6;">
+                Blacksmith Store — це не лише інтернет-магазин. Ми чекаємо на вас у нашому фірмовому просторі, де ви можете особисто приміряти топові моделі, оцінити якість матеріалів та отримати допомогу з вибором.
+            </p>
+
+            <ul style="list-style: none; padding: 0; margin-top: 25px; color: #fff;">
+                <li class="mb-3 d-flex align-items-start">
+                    <span style="font-size: 1.5rem; margin-right: 15px;">📍</span>
+                    <div>
+                        <strong style="color: var(--bs-orange); font-size: 1.1rem;">Локація:</strong><br />
+                        м. Харків, вул. Пушкінська, 2А<br />
+                        <span style="color: #aaa;">(ТРЦ "Нікольський", 2-й поверх)</span>
+                    </div>
+                </li>
+                <li class="mb-4 d-flex align-items-start">
+                    <span style="font-size: 1.5rem; margin-right: 15px;">⏰</span>
+                    <div>
+                        <strong style="color: var(--bs-orange); font-size: 1.1rem;">Графік роботи:</strong><br />
+                        Щодня з 10:00 до 20:00
+                    </div>
+                </li>
+            </ul>
+
+            <a asp-controller="Home" asp-action="Catalog" class="btn py-2 px-4 w-100 text-center d-flex justify-content-center align-items-center gap-2" style="background-color: var(--bs-orange); color: #000; font-weight: bold; border-radius: 8px; font-size: 1.1rem;">
+                Переглянути каталог <span style="font-size: 1.2rem;">→</span>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<div class="container mt-5 mb-5 slide-up" style="padding-top: 30px;">
+    <div class="text-center mb-5">
+        <h2 class="section-title d-inline-block" style="position: relative; padding-bottom: 10px;">
+            💬 ЩО КАЖУТЬ НАШІ КЛІЄНТИ
+        </h2>
+        <p class="mt-2" style="color: var(--text-light); opacity: 0.85; font-size: 1.1rem;">Реальні відгуки від покупців Blacksmith Store</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="p-4 h-100 d-flex flex-column" style="background-color: var(--bs-black); border-radius: 15px; border: 1px solid #333; position: relative; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="color: var(--bs-orange); font-size: 1.3rem; margin-bottom: 15px; letter-spacing: 2px;">
+                    ★★★★★
+                </div>
+                <p style="color: #ddd; font-style: italic; font-size: 1rem; flex-grow: 1;">
+                    "Дуже зручно! Замовив кросівки Nike, кур'єр привіз прямо додому на Олексіївку. Зміг спокійно поміряти перед оплатою. Сервіс на вищому рівні!"
+                </p>
+                <div class="d-flex align-items-center mt-4 pt-3" style="border-top: 1px dashed #444;">
+                    <div style="width: 45px; height: 45px; border-radius: 50%; background-color: #222; border: 2px solid var(--bs-orange); display: flex; justify-content: center; align-items: center; font-weight: bold; color: var(--bs-orange); margin-right: 15px; font-size: 1.2rem;">
+                        М
+                    </div>
+                    <div>
+                        <h6 style="color: #fff; margin: 0; font-weight: bold;">Максим К.</h6>
+                        <small style="color: #777;">м. Харків</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="p-4 h-100 d-flex flex-column" style="background-color: var(--bs-black); border-radius: 15px; border: 1px solid #333; position: relative; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="color: var(--bs-orange); font-size: 1.3rem; margin-bottom: 15px; letter-spacing: 2px;">
+                    ★★★★★
+                </div>
+                <p style="color: #ddd; font-style: italic; font-size: 1rem; flex-grow: 1;">
+                    "Заходили вчора в магазин у Нікольському. Дуже крутий інтер'єр, консультанти просто топ — допомогли підібрати ідеальні Asics для бігу. Тепер я ваш постійний клієнт."
+                </p>
+                <div class="d-flex align-items-center mt-4 pt-3" style="border-top: 1px dashed #444;">
+                    <div style="width: 45px; height: 45px; border-radius: 50%; background-color: #222; border: 2px solid var(--bs-orange); display: flex; justify-content: center; align-items: center; font-weight: bold; color: var(--bs-orange); margin-right: 15px; font-size: 1.2rem;">
+                        А
+                    </div>
+                    <div>
+                        <h6 style="color: #fff; margin: 0; font-weight: bold;">Аліна С.</h6>
+                        <small style="color: #777;">Купила взуття</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="p-4 h-100 d-flex flex-column" style="background-color: var(--bs-black); border-radius: 15px; border: 1px solid #333; position: relative; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="color: var(--bs-orange); font-size: 1.3rem; margin-bottom: 15px; letter-spacing: 2px;">
+                    ★★★★★
+                </div>
+                <p style="color: #ddd; font-style: italic; font-size: 1rem; flex-grow: 1;">
+                    "Якість товару 10/10, оригінал. Але найбільше радує система Blacksmith Club. Вже накопичив бали і взяв собі фірмовий рюкзак зі знижкою 15%. Рекомендую!"
+                </p>
+                <div class="d-flex align-items-center mt-4 pt-3" style="border-top: 1px dashed #444;">
+                    <div style="width: 45px; height: 45px; border-radius: 50%; background-color: #222; border: 2px solid var(--bs-orange); display: flex; justify-content: center; align-items: center; font-weight: bold; color: var(--bs-orange); margin-right: 15px; font-size: 1.2rem;">
+                        Д
+                    </div>
+                    <div>
+                        <h6 style="color: #fff; margin: 0; font-weight: bold;">Дмитро О.</h6>
+                        <small style="color: #777;">Учасник Club Card</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

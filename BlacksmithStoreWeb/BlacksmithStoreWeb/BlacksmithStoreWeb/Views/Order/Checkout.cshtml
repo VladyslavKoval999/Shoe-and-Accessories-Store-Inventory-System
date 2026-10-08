@@ -1,0 +1,128 @@
+﻿@model BlacksmithStoreWeb.Models.CheckoutViewModel
+
+<div class="container mt-5 mb-5 slide-up" style="min-height: 70vh;">
+    <h2 class="mb-4" style="color: var(--bs-orange); font-weight: 900; text-transform: uppercase;">ОФОРМЛЕННЯ ЗАМОВЛЕННЯ</h2>
+
+    <div class="p-3 mb-4 d-flex align-items-center" style="background: linear-gradient(90deg, #111 0%, #1a1a1a 100%); border-left: 4px solid var(--bs-orange); border-radius: 8px;">
+        <span style="font-size: 2rem; margin-right: 15px;">🛵</span>
+        <div>
+            <h5 style="color: #fff; margin: 0; font-weight: bold;">Ексклюзивна доставка Blacksmith</h5>
+            <p style="color: #aaa; margin: 0; font-size: 0.9rem;">Доставляємо замовлення кур'єром до дверей виключно по <strong>м. Харків</strong>. Вартість доставки фіксована — <strong>50 ₴</strong>.</p>
+        </div>
+    </div>
+
+    <form asp-action="Checkout" method="post">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="p-4" style="background-color: var(--bs-black); border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                    <h5 class="text-light fw-bold mb-4">Куди веземо? (м. Харків)</h5>
+
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="text-light fw-bold mb-2">Вулиця та будинок *</label>
+                            <input asp-for="StreetAddress" class="form-control" style="background-color: #1a1a1a; color: white; border: 1px solid #444;" placeholder="вул. Сумська, 15" />
+                            <span asp-validation-for="StreetAddress" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="text-light fw-bold mb-2">Квартира</label>
+                            <input asp-for="Apartment" class="form-control" style="background-color: #1a1a1a; color: white; border: 1px solid #444;" placeholder="42" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-light fw-bold mb-2">Коментар для кур'єра</label>
+                        <textarea asp-for="CourierComment" class="form-control" rows="2" style="background-color: #1a1a1a; color: white; border: 1px solid #444;" placeholder="Код домофону, зателефонувати за 10 хвилин тощо..."></textarea>
+                    </div>
+
+                    <h5 class="text-light fw-bold mb-3 mt-4">Клубна карта</h5>
+                    @if (Model.AvailableBonuses > 0)
+                    {
+                        <div class="p-3 mb-2" style="background-color: rgba(40, 167, 69, 0.1); border: 1px solid #28a745; border-radius: 10px; transition: all 0.3s;" id="bonusContainer">
+                            <div class="form-check d-flex align-items-center">
+                                <input class="form-check-input" type="checkbox" asp-for="UseBonus" id="useBonusCheck" style="transform: scale(1.3); margin-top: 0; cursor: pointer;" onchange="calculateTotal()">
+                                <label class="form-check-label ms-3 text-light fw-bold" for="useBonusCheck" style="cursor: pointer; flex-grow: 1;">
+                                    🎁 Застосувати купон на <span style="color: #28a745;">-15% знижки</span>
+                                </label>
+                                <span class="badge" style="background-color: #28a745; color: #fff;">Доступно: @Model.AvailableBonuses</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-3 mb-2 d-flex align-items-center" style="background-color: #111; border: 1px dashed #555; border-radius: 10px;">
+                            <span style="font-size: 1.5rem; opacity: 0.5; margin-right: 15px;">🔒</span>
+                            <span style="color: #888; font-size: 0.95rem;">У вас поки немає купонів на знижку. Вони нараховуються за кожні 10 куплених товарів!</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="p-4" style="background-color: var(--bs-black); border-radius: 15px; border: 1px solid var(--bs-orange); position: sticky; top: 20px;">
+                    <h5 style="color: var(--bs-orange); font-weight: 900; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px;">ВАШ ЧЕК</h5>
+
+                    <div class="d-flex justify-content-between text-light mb-3">
+                        <span style="color: #aaa;">Сума товарів:</span>
+                        <strong id="valCartTotal" data-val="@Model.CartTotal">@Model.CartTotal.ToString("0.00") ₴</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between text-light mb-3">
+                        <span style="color: #aaa;">Кур'єр (Харків):</span>
+                        <strong id="valDelivery" data-val="@Model.DeliveryCost">@Model.DeliveryCost.ToString("0.00") ₴</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3" id="discountRow" style="display: none !important; color: #28a745; font-weight: bold;">
+                        <span>Знижка (15%):</span>
+                        <strong id="valDiscount">-0.00 ₴</strong>
+                    </div>
+
+                    <hr style="border-color: #444; margin: 20px 0;" />
+
+                    <div class="d-flex justify-content-between align-items-end mb-4">
+                        <span class="text-light fw-bold" style="font-size: 1.2rem;">До оплати:</span>
+                        <span id="valFinalTotal" style="color: var(--bs-orange); font-weight: 900; font-size: 1.8rem;">0.00 ₴</span>
+                    </div>
+
+                    <button type="submit" class="btn w-100 py-3 d-flex justify-content-center align-items-center gap-2" style="background-color: var(--bs-orange); color: #000; font-weight: 900; font-size: 1.1rem; letter-spacing: 1px; border-radius: 8px;">
+                        <span>ОФОРМИТИ ЗАМОВЛЕННЯ</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                    <div class="text-center mt-3">
+                        <small style="color: #666;">Оплата здійснюється кур'єру готівкою або на картку при отриманні.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        calculateTotal();
+    });
+
+    function calculateTotal() {
+        const cartTotal = parseFloat(document.getElementById('valCartTotal').getAttribute('data-val'));
+        const delivery = parseFloat(document.getElementById('valDelivery').getAttribute('data-val'));
+        const bonusCheckbox = document.getElementById('useBonusCheck');
+        const discountRow = document.getElementById('discountRow');
+
+        let discount = 0;
+
+        if (bonusCheckbox && bonusCheckbox.checked) {
+            discount = cartTotal * 0.15;
+            discountRow.style.setProperty('display', 'flex', 'important');
+            document.getElementById('valDiscount').innerText = "-" + discount.toFixed(2) + " ₴";
+            document.getElementById('bonusContainer').style.backgroundColor = "rgba(40, 167, 69, 0.2)";
+        } else {
+            discountRow.style.setProperty('display', 'none', 'important');
+            if(document.getElementById('bonusContainer')) {
+                document.getElementById('bonusContainer').style.backgroundColor = "rgba(40, 167, 69, 0.1)";
+            }
+        }
+
+        const finalTotal = cartTotal - discount + delivery;
+        document.getElementById('valFinalTotal').innerText = finalTotal.toFixed(2) + " ₴";
+    }
+</script>

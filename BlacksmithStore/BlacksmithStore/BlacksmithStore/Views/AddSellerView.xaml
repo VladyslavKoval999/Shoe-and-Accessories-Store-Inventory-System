@@ -1,0 +1,199 @@
+﻿<UserControl x:Class="BlacksmithStore.Views.AddSellerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <Style x:Key="VisibleNavTabItemStyle" TargetType="TabItem" BasedOn="{StaticResource MaterialDesignTabItem}">
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="30,15"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource MainGoldBrush}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource TextMainBrush}"/>
+                    <Setter Property="Background" Value="#0AFFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20" MaxWidth="1100">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="{DynamicResource txtRegStaff}" Foreground="{DynamicResource TextMainBrush}" FontSize="32" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+        <materialDesign:Card Grid.Row="1" Background="{DynamicResource BgCardBrush}" UniformCornerRadius="15" Padding="0">
+            <TabControl Style="{StaticResource MaterialDesignTabControl}" Background="Transparent" BorderThickness="0" SelectionChanged="TabControl_SelectionChanged">
+
+                <TabItem Style="{StaticResource VisibleNavTabItemStyle}">
+                    <TabItem.Header>
+                        <TextBlock Text="{DynamicResource txtTabNewStaff}" FontSize="15" FontWeight="Bold"/>
+                    </TabItem.Header>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <Grid Margin="0,30,0,30">
+                            <materialDesign:Card Width="450" UniformCornerRadius="16" Background="Transparent" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" ClipToBounds="True" HorizontalAlignment="Center">
+                                <StackPanel>
+
+                                    <Border Background="{StaticResource MainGoldBrush}" Height="80">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="AccountPlusOutline" Width="35" Height="35" Foreground="Black" Margin="0,0,10,0"/>
+                                            <TextBlock Text="{DynamicResource txtAddStaffTitle}" Foreground="Black" FontSize="20" FontWeight="Black" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource BgCardBrush}" Padding="40,30,40,40">
+                                        <StackPanel>
+
+                                            <Grid Margin="0,0,0,25">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Kind="CardAccountDetailsOutline" Width="26" Height="26" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Bottom" Margin="0,0,15,8"/>
+                                                <TextBox Grid.Column="1" x:Name="edtStaffFullName" materialDesign:HintAssist.Hint="{DynamicResource txtSellerFullNameHint}"
+                                                         Foreground="{DynamicResource TextMainBrush}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontSize="16"/>
+                                            </Grid>
+
+                                            <Grid Margin="0,0,0,25">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Kind="AccountOutline" Width="26" Height="26" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Bottom" Margin="0,0,15,8"/>
+                                                <TextBox Grid.Column="1" x:Name="edtStaffLogin" materialDesign:HintAssist.Hint="{DynamicResource txtLoginHint}"
+                                                         Foreground="{DynamicResource TextMainBrush}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" FontSize="16"/>
+                                            </Grid>
+
+                                            <Grid Margin="0,0,0,25">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Kind="ShieldAccountOutline" Width="26" Height="26" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Bottom" Margin="0,0,15,8"/>
+                                                <ComboBox Grid.Column="1" x:Name="cbStaffRole" materialDesign:HintAssist.Hint="{DynamicResource txtRoleHint}" 
+                                                          Foreground="{DynamicResource TextMainBrush}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" FontSize="16"/>
+                                            </Grid>
+
+                                            <Grid Margin="0,0,0,35">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <materialDesign:PackIcon Kind="LockOutline" Width="26" Height="26" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Bottom" Margin="0,0,15,8"/>
+
+                                                <PasswordBox Grid.Column="1" x:Name="edtStaffPassword" materialDesign:HintAssist.Hint="{DynamicResource txtPasswordHint}"
+                                                             Foreground="{DynamicResource TextMainBrush}" Style="{StaticResource MaterialDesignFloatingHintRevealPasswordBox}" FontSize="16"/>
+                                            </Grid>
+
+                                            <Button Content="{DynamicResource txtBtnSaveSeller}" Click="CreateStaff_Click"
+                                                    Height="55" Background="{StaticResource MainGoldBrush}" Foreground="Black"
+                                                    FontWeight="Bold" FontSize="16" Style="{StaticResource MaterialDesignRaisedButton}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </materialDesign:Card>
+                        </Grid>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Style="{StaticResource VisibleNavTabItemStyle}">
+                    <TabItem.Header>
+                        <TextBlock Text="{DynamicResource txtTabStaffBase}" FontSize="15" FontWeight="Bold"/>
+                    </TabItem.Header>
+
+                    <Grid Margin="30">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="0,0,0,15">
+                            <TextBlock Text="{DynamicResource txtStaffListTitle}" Foreground="{DynamicResource TextMutedBrush}" FontSize="16" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Text="{DynamicResource txtEditMode}" Foreground="{DynamicResource TextMainBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                                <ToggleButton x:Name="ToggleEditMode" 
+                                              Style="{StaticResource MaterialDesignSwitchToggleButton}" 
+                                              Foreground="{StaticResource MainGoldBrush}" 
+                                              Background="{DynamicResource TextMutedBrush}" 
+                                              BorderBrush="{DynamicResource TextMainBrush}" 
+                                              Cursor="Hand"
+                                              Checked="ToggleEditMode_Changed" 
+                                              Unchecked="ToggleEditMode_Changed"/>
+                            </StackPanel>
+                        </DockPanel>
+
+                        <TextBox Grid.Row="1" x:Name="edtSearchDatabase" materialDesign:HintAssist.Hint="{DynamicResource txtSearchHint}"
+                                 Foreground="{DynamicResource TextMainBrush}" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                 FontSize="15" Margin="0,0,0,20" TextChanged="SearchDatabase_TextChanged"/>
+
+                        <DataGrid Grid.Row="2" x:Name="dgStaff" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" 
+                                  Background="Transparent" Foreground="{DynamicResource TextMainBrush}" 
+                                  BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" RowBackground="Transparent"
+                                  GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{DynamicResource BorderLineBrush}"
+                                  FontSize="15">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="0.6*"/>
+                                <DataGridTextColumn Header="{DynamicResource txtLoginHint}" Binding="{Binding Username}" Width="1.2*"/>
+                                <DataGridTextColumn Header="{DynamicResource txtSellerFullNameHint}" Binding="{Binding FullName}" Width="1.5*"/>
+
+                                <DataGridTemplateColumn Header="{DynamicResource txtRoleHint}" Width="1.2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding RoleName}" VerticalAlignment="Center" Margin="5,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <ComboBox ItemsSource="{Binding DataContext.AvailableRoles, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      DisplayMemberPath="Name" SelectedValuePath="Id"
+                                                      SelectedValue="{Binding RoleId, UpdateSourceTrigger=PropertyChanged}" 
+                                                      Foreground="{DynamicResource TextMainBrush}" BorderThickness="0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTemplateColumn x:Name="colPassword" Header="{DynamicResource txtPasswordHint}" Visibility="Collapsed" Width="1.5*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="••••••••" Foreground="{StaticResource MainGoldBrush}" FontWeight="Bold" VerticalAlignment="Center" Margin="5,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox Text="{Binding NewPassword, UpdateSourceTrigger=PropertyChanged}" 
+                                                     materialDesign:HintAssist.Hint="{DynamicResource txtEnterNewPassword}"
+                                                     Foreground="{DynamicResource TextMainBrush}" BorderThickness="0" VerticalAlignment="Center" Margin="5,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,20,0,0" HorizontalAlignment="Right">
+                            <Button x:Name="BtnDeleteStaff" Content="{DynamicResource txtBtnDelete}" Click="DeleteStaff_Click" 
+                                    Visibility="Collapsed" Height="45" Background="#E53935" Foreground="White" 
+                                    FontWeight="Bold" Margin="0,0,20,0" FontSize="15" BorderThickness="0" Padding="25,0"/>
+                            <Button x:Name="BtnSaveChanges" Content="{DynamicResource txtBtnSaveChanges}" Click="SaveChanges_Click" 
+                                    Visibility="Collapsed" Height="45" Background="#81C784" Foreground="Black" 
+                                    FontWeight="Bold" FontSize="15" BorderThickness="0" Padding="25,0"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

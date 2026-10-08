@@ -1,0 +1,105 @@
+﻿@model BlacksmithStoreWeb.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Вхід";
+}
+
+<style>
+    .slide-up {
+        animation: slideUpFade 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    }
+
+    @@keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .toggle-password {
+        color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+        .toggle-password:hover {
+            color: rgba(255, 255, 255, 1);
+        }
+
+    input:-webkit-autofill + .toggle-password {
+        color: rgba(0, 0, 0, 0.5);
+    }
+
+        input:-webkit-autofill + .toggle-password:hover {
+            color: rgba(0, 0, 0, 1);
+        }
+</style>
+
+<div class="container mt-5 mb-5 slide-up" style="min-height: 60vh; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color: var(--bs-black); padding: 40px; border-radius: 15px; border: 1px solid var(--bs-orange); width: 100%; max-width: 450px;">
+        <h2 class="text-center mb-4" style="color: var(--text-light); font-weight: 900;">ВХІД</h2>
+
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label class="text-light fw-bold mb-2">Логін</label>
+                <input asp-for="Username" class="form-control" style="background-color: #1a1a1a; color: white; border: 1px solid #444;" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-light fw-bold mb-2">Пароль</label>
+                <div class="position-relative">
+                    <input asp-for="Password" id="LoginPassword" type="password" class="form-control pe-5" style="background-color: #1a1a1a; color: white; border: 1px solid #444;" placeholder="Введіть пароль" />
+                    <span class="position-absolute top-50 end-0 translate-middle-y pe-3 toggle-password" data-target="LoginPassword">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+                            <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486z" />
+                            <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829" />
+                            <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z" />
+                        </svg>
+                    </span>
+                </div>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn w-100 py-2" style="background-color: var(--bs-orange); color: #000; font-weight: bold; font-size: 1.1rem;">УВІЙТИ</button>
+
+            <div class="text-center mt-4">
+                <a asp-action="Register" style="color: #aaa; text-decoration: none;">Ще немає акаунту? <strong style="color: var(--bs-orange);">Зареєструватися</strong></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButtons = document.querySelectorAll(".toggle-password");
+
+            toggleButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const targetId = this.getAttribute("data-target");
+                    const input = document.getElementById(targetId);
+
+                    if (input.type === "password") {
+                        input.type = "text";
+                        this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg>`;
+                    } else {
+                        input.type = "password";
+                        this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16"><path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486z"/><path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829"/><path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z"/></svg>`;
+                    }
+                });
+            });
+        });
+    </script>
+}

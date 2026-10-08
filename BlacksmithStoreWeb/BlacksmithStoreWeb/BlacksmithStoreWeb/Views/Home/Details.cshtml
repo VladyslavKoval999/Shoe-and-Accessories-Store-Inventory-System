@@ -1,0 +1,635 @@
+﻿@model BlacksmithStoreWeb.Models.ProductDetailsViewModel
+@using Microsoft.AspNetCore.Http
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = Model.Product.Name;
+
+    var favJson = Context.Session.GetString("Favorites");
+    var favIds = string.IsNullOrEmpty(favJson)
+        ? new List<int>()
+        : JsonSerializer.Deserialize<List<int>>(favJson) ?? new List<int>();
+
+    bool isFavorite = favIds.Contains(Model.Product.ProductId);
+
+    var imageList = new List<string>();
+    if (!string.IsNullOrEmpty(Model.Product.Images))
+    {
+        imageList = Model.Product.Images.Split(',')
+            .Select(img => $"/Images/Product/{System.IO.Path.GetFileName(img.Trim())}")
+            .ToList();
+    }
+    else
+    {
+        imageList.Add("/Images/placeholder.jpg");
+    }
+}
+
+<div class="container mt-5 mb-5 fade-in-page">
+    <div class="mb-4 text-start" style="max-width: 1000px; margin: 0 auto;">
+        <a href="javascript:void(0);" onclick="window.history.back();" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+            </svg>
+            Назад до каталогу
+        </a>
+    </div>
+
+    <div class="row g-5 justify-content-center" style="max-width: 1100px; margin: 0 auto;">
+        <div class="col-lg-5">
+            <div class="sticky-gallery">
+                <div class="main-image-wrapper mb-3">
+                    <img id="mainProductImage" src="@imageList[0]" alt="@Model.Product.Name" class="main-img" onerror="this.onerror=null; this.src='/Images/placeholder.jpg';" />
+                </div>
+
+                @if (imageList.Count > 1)
+                {
+                    <div class="d-flex gap-2 pb-2 thumbnail-scroll-container">
+                        @for (int i = 0; i < imageList.Count; i++)
+                        {
+                            <div class="thumb-box @(i == 0 ? "active" : "")" onclick="changeMainImage('@imageList[i]', this)">
+                                <img src="@imageList[i]" alt="Прев'ю @i" onerror="this.onerror=null; this.src='/Images/placeholder.jpg';" />
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="product-premium-panel p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge-type">@(Model.Product.ProductType ?? "Товар")</span>
+                    @if (!string.IsNullOrEmpty(Model.Product.Article))
+                    {
+                        <span class="text-muted fs-7">Артикул: <strong class="text-light">@Model.Product.Article</strong></span>
+                    }
+                </div>
+
+                <h1 class="product-title-text mb-3">@Model.Product.Name</h1>
+
+                <div class="premium-price-box mb-4">
+                    <span class="price-amount">@Math.Round(Model.Product.BasePrice)</span>
+                    <span class="price-currency">₴</span>
+                </div>
+
+                <hr class="divider-line mb-4" />
+
+                <form id="purchaseForm" onsubmit="handleFormSubmit(event)">
+
+                    @if (Model.AvailableSizes != null && Model.AvailableSizes.Any())
+                    {
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="panel-label">Оберіть розмір (EU):</label>
+                                <a href="#sizeGuideModal" data-bs-toggle="modal" class="size-modal-link">Таблиця розмірів</a>
+                            </div>
+
+                            <div class="size-grid-container">
+                                @foreach (var size in Model.AvailableSizes)
+                                {
+                                    <div class="size-grid-item">
+                                        <input type="radio" name="selectedSize" value="@size" id="size_@size" class="btn-check" />
+                                        <label for="size_@size" class="size-grid-label">@size</label>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="error-msg-box d-none mt-2" id="sizeValidationError">
+                                ⚠️ Будь ласка, оберіть потрібний розмір.
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row g-3 align-items-end mb-4">
+                        <div class="col-sm-4">
+                            <label class="panel-label mb-2">Кількість:</label>
+                            <div class="premium-qty-group">
+                                <button type="button" class="qty-btn-action" onclick="adjustQuantity(-1)">−</button>
+                                <input type="number" id="productQuantity" value="1" min="1" max="10" readonly class="qty-input-field text-center" />
+                                <button type="button" class="qty-btn-action" onclick="adjustQuantity(1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <button type="submit" class="btn-action-cart">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-bag-plus-fill" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M10.5 3.5a2.5 2.5 0 0 0-5 0V4h5v-.5zm1 0V4H15v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4h3.5v-.5a3.5 3.5 0 1 1 7 0zM4 5v1h8V5H4zm1 2a.5.5 0 0 0-1 0v1a.5.5 0 0 0 1 0V7zm6 0a.5.5 0 0 0-1 0v1a.5.5 0 0 0 1 0V7z" />
+                                </svg>
+                                ДОДАТИ В КОШИК
+                            </button>
+                        </div>
+
+                        <div class="col-sm-2">
+                            <button type="button" class="btn-action-fav @(isFavorite ? "active" : "")"
+                                    data-id="@Model.Product.ProductId"
+                                    onclick="toggleFavoritePage(@Model.Product.ProductId)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="mt-4 pt-2">
+                    <nav class="premium-tabs-nav">
+                        <div class="nav nav-tabs border-0 gap-3" id="nav-tab" role="tablist">
+                            <button class="nav-tab-link active" id="nav-desc-tab" data-bs-toggle="tab" data-bs-target="#nav-desc" type="button" role="tab">Опис товару</button>
+                            <button class="nav-tab-link" id="nav-delivery-tab" data-bs-toggle="tab" data-bs-target="#nav-delivery" type="button" role="tab">Доставка та сервіс</button>
+                        </div>
+                    </nav>
+                    <div class="tab-content premium-tab-body mt-3" id="nav-tabContent">
+                        <div class="tab-pane fade show active" id="nav-desc" role="tabpanel">
+                            @if (!string.IsNullOrEmpty(Model.Product.Description))
+                            {
+                                <p class="desc-text-content">@Model.Product.Description</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted italic-text">Опис для даного товару тимчасово відсутній.</p>
+                            }
+                        </div>
+                        <div class="tab-pane fade text-secondary-light" id="nav-delivery" role="tabpanel">
+                            <div class="delivery-item mb-2">
+                                <span>📍</span> <strong>Самовивіз:</strong> Безкоштовно з офлайн простору (Харків, ТРЦ "Нікольський", 2-й поверх).
+                            </div>
+                            <div class="delivery-item mb-2">
+                                <span>🚚</span> <strong>Адресна доставка:</strong> Кур'єром бренду до дверей за 50 ₴ із можливістю примірки.
+                            </div>
+                            <div class="delivery-item">
+                                <span>💳</span> <strong>Оплата:</strong> Готівкою або терміналом при отриманні замовлення.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="sizeGuideModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-light" style="background-color: #121212; border: 1px solid #333; border-radius: 12px;">
+            <div class="modal-header" style="border-bottom: 1px solid #222;">
+                <h5 class="modal-title fw-bold" style="color: var(--bs-orange); letter-spacing: 0.5px;">ТАБЛИЦЯ РОЗМІРІВ (EU)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <table class="table table-dark table-striped text-center mb-0 style-premium-table">
+                    <thead>
+                        <tr style="color: var(--bs-orange); background-color: #1a1a1a;">
+                            <th class="py-3">Розмір (EU)</th>
+                            <th class="py-3">Довжина устілки</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="py-2">39</td><td class="py-2">25.0 см</td></tr>
+                        <tr><td class="py-2">40</td><td class="py-2">25.5 см</td></tr>
+                        <tr><td class="py-2">41</td><td class="py-2">26.5 см</td></tr>
+                        <tr><td class="py-2">42</td><td class="py-2">27.0 см</td></tr>
+                        <tr><td class="py-2">43</td><td class="py-2">27.5 см</td></tr>
+                        <tr><td class="py-2">44</td><td class="py-2">28.5 см</td></tr>
+                        <tr><td class="py-2">45</td><td class="py-2">29.0 см</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fade-in-page {
+        animation: fadeInUi 0.5s ease-in-out forwards;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #888;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+
+        .btn-back:hover {
+            color: var(--bs-orange);
+        }
+
+    .sticky-gallery {
+        position: sticky;
+        top: 30px;
+    }
+
+    .main-image-wrapper {
+        position: relative;
+        aspect-ratio: 4 / 5;
+        background-color: #161616;
+        border: 1px solid #282828;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        max-width: 420px;
+        margin: 0 auto;
+    }
+
+    .main-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .premium-badge {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        background: rgba(0,0,0,0.85);
+        border: 1px solid var(--bs-orange);
+        color: var(--bs-orange);
+        font-size: 0.75rem;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        padding: 5px 14px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+
+    .thumbnail-scroll-container {
+        overflow-x: auto;
+        max-width: 420px;
+        margin: 0 auto;
+    }
+
+        .thumbnail-scroll-container::-webkit-scrollbar {
+            height: 0px;
+        }
+
+    .thumb-box {
+        width: 75px;
+        height: 75px;
+        border-radius: 10px;
+        border: 1px solid #252525;
+        overflow: hidden;
+        background-color: #161616;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+        .thumb-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumb-box:hover, .thumb-box.active {
+            border-color: var(--bs-orange);
+            transform: scale(0.95);
+            box-shadow: 0 0 8px rgba(253, 126, 20, 0.3);
+        }
+
+    .product-premium-panel {
+        background-color: #111111;
+        border: 1px solid #222222;
+        border-radius: 16px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.4);
+    }
+
+    .badge-type {
+        color: #888;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+    }
+
+    .fs-7 {
+        font-size: 0.8rem;
+    }
+
+    .product-title-text {
+        color: #fff;
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .premium-price-box {
+        display: flex;
+        align-items: baseline;
+        color: var(--bs-orange);
+        font-weight: 900;
+    }
+
+    .price-amount {
+        font-size: 2.8rem;
+        letter-spacing: -0.5px;
+    }
+
+    .price-currency {
+        font-size: 1.4rem;
+        margin-left: 4px;
+    }
+
+    .divider-line {
+        border-color: #282828;
+        opacity: 1;
+    }
+
+    .panel-label {
+        color: #fff;
+        font-weight: bold;
+        font-size: 0.95rem;
+    }
+
+    .size-modal-link {
+        color: #777;
+        font-size: 0.85rem;
+        font-weight: bold;
+        transition: color 0.2s;
+    }
+
+        .size-modal-link:hover {
+            color: var(--bs-orange);
+        }
+
+    .size-grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+        gap: 10px;
+    }
+
+    .size-grid-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #181818;
+        color: #fff;
+        border: 1px solid #333;
+        padding: 12px 0;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 0;
+    }
+
+    .btn-check:checked + .size-grid-label {
+        background-color: var(--bs-orange) !important;
+        color: #000 !important;
+        border-color: var(--bs-orange) !important;
+        box-shadow: 0 0 12px rgba(253, 126, 20, 0.4);
+    }
+
+    .btn-check:not(:checked) + .size-grid-label:hover {
+        border-color: #555;
+        background-color: #222;
+    }
+
+    .error-msg-box {
+        color: #ff4d4d;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+    .premium-qty-group {
+        display: flex;
+        align-items: center;
+        background-color: #181818;
+        border: 1px solid #333;
+        border-radius: 8px;
+        height: 48px;
+        overflow: hidden;
+    }
+
+    .qty-btn-action {
+        background: none;
+        border: none;
+        color: #fff;
+        width: 40px;
+        height: 100%;
+        font-size: 1.1rem;
+        cursor: pointer;
+    }
+
+        .qty-btn-action:hover {
+            background-color: #252525;
+        }
+
+    .qty-input-field {
+        width: 100%;
+        flex-grow: 1;
+        background: none;
+        border: none;
+        color: #fff;
+        font-weight: bold;
+        outline: none;
+    }
+
+    .btn-action-cart {
+        width: 100%;
+        height: 48px;
+        background-color: var(--bs-orange);
+        color: #000;
+        font-weight: 800;
+        border: none;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.25s ease;
+    }
+
+        .btn-action-cart:hover {
+            background-color: #ff9800;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(253, 126, 20, 0.4);
+        }
+
+    .btn-action-fav {
+        width: 100%;
+        height: 48px;
+        background-color: #181818;
+        border: 1px solid #333;
+        color: #fff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        padding: 0;
+    }
+
+        .btn-action-fav:hover {
+            border-color: #ff4d4d;
+            color: #ff4d4d;
+            background-color: #222;
+        }
+
+        .btn-action-fav.active {
+            color: #ff4d4d !important;
+            border-color: #ff4d4d;
+            background-color: rgba(255, 77, 77, 0.12);
+            filter: drop-shadow(0 0 4px rgba(255, 77, 77, 0.4));
+        }
+
+    .premium-tabs-nav {
+        border-bottom: 2px solid #222;
+    }
+
+    .nav-tab-link {
+        background: none;
+        border: none;
+        color: #666;
+        font-weight: bold;
+        padding: 10px 0;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+    }
+
+        .nav-tab-link.active {
+            color: var(--bs-orange);
+            border-bottom-color: var(--bs-orange);
+        }
+
+    .desc-text-content {
+        color: #bbb;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+
+    .delivery-item {
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+
+    .style-premium-table th, .style-premium-table td {
+        border-color: #222 !important;
+    }
+
+    @@keyframes fadeInUi {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>
+
+<script>
+    function changeMainImage(src, thumbElement) {
+        document.getElementById('mainProductImage').src = src;
+        document.querySelectorAll('.thumb-box').forEach(b => b.classList.remove('active'));
+        thumbElement.classList.add('active');
+    }
+
+    async function adjustQuantity(amount) {
+        const input = document.getElementById('productQuantity');
+        let currentVal = parseInt(input.value) || 1;
+        let newVal = currentVal + amount;
+
+        if (newVal < 1) return;
+        if (newVal > 10) return;
+
+        if (amount > 0) {
+            const radios = document.getElementsByName('selectedSize');
+            const err = document.getElementById('sizeValidationError');
+            let selected = null;
+
+            if (radios.length > 0) {
+                for (let r of radios) {
+                    if (r.checked) { selected = r.value; break; }
+                }
+                if (!selected) {
+                    err.classList.remove('d-none');
+                    return;
+                } else {
+                    err.classList.add('d-none');
+                }
+            }
+
+            const pId = @Model.Product.ProductId;
+
+            try {
+                const stockRes = await fetch(`/Cart/GetAvailableStock?id=${pId}&size=${selected || ''}`);
+                const stockData = await stockRes.json();
+
+                const cartRes = await fetch(`/Cart/GetItemCartCount?id=${pId}&size=${selected || ''}`);
+                const cartData = await cartRes.json();
+
+                const availableStock = stockData.stock;
+                const inCart = cartData.count;
+
+                if (newVal + inCart > availableStock) {
+                    let sizeInfo = selected ? ` (Розмір: ${selected})` : "";
+                    let errorText = availableStock === 0
+                        ? `На жаль, товар${sizeInfo} закінчився.`
+                        : `На складі залишилось лише ${availableStock} шт.${sizeInfo}. У вас в кошику вже: ${inCart} шт.`;
+
+                    document.getElementById('errorToastMessage').innerText = errorText;
+                    new bootstrap.Toast(document.getElementById('errorToast'), { delay: 4000 }).show();
+                    return;
+                }
+            } catch(e) {
+                console.error('Помилка перевірки складу', e);
+            }
+        }
+
+        input.value = newVal;
+    }
+
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        const radios = document.getElementsByName('selectedSize');
+        const err = document.getElementById('sizeValidationError');
+        let selected = null;
+
+        if (radios.length > 0) {
+            for (let r of radios) {
+                if (r.checked) { selected = r.value; break; }
+            }
+            if (!selected) {
+                err.classList.remove('d-none');
+                return;
+            } else {
+                err.classList.add('d-none');
+            }
+        }
+
+        const qty = parseInt(document.getElementById('productQuantity').value) || 1;
+        const pId = @Model.Product.ProductId;
+
+        addToCart(pId, selected, qty);
+    }
+
+    function toggleFavoritePage(productId) {
+        toggleFavorite(productId);
+        setTimeout(() => {
+            const btn = document.querySelector('.btn-action-fav');
+            if(btn) {
+                const cardButtons = document.querySelectorAll(`.card-fav-btn[data-id="${productId}"]`);
+                if(cardButtons.length > 0 && cardButtons[0].classList.contains('active')) {
+                    btn.classList.add('active');
+                } else if(cardButtons.length > 0) {
+                    btn.classList.remove('active');
+                } else {
+                    btn.classList.toggle('active');
+                }
+            }
+        }, 250);
+    }
+</script>

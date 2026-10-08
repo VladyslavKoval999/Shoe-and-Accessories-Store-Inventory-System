@@ -1,0 +1,117 @@
+﻿@model List<BlacksmithStoreWeb.Models.Product>
+@{
+    ViewData["Title"] = "Мої Вподобання 🖤";
+}
+
+<div class="premium-page-hero text-center mb-5">
+    <div class="hero-bg-glow" style="background: radial-gradient(circle, rgba(255, 77, 77, 0.08) 0%, transparent 70%);"></div>
+    <div class="container position-relative" style="z-index: 2;">
+        <h1 class="premium-hero-title">СПИСОК ВПОДОБАНЬ</h1>
+        <p class="premium-hero-subtitle">Твої збережені товари, що чекають на найкращий момент для замовлення.</p>
+        <div class="premium-counter-badge">
+            Збережено товарів: <span>@Model.Count</span>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5 pb-5" style="min-height: 50vh;">
+    @if (Model != null && Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 staggered-grid">
+            @foreach (var item in Model)
+            {
+                @await Html.PartialAsync("_ProductCard", item)
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5" style="animation: gridFadeIn 0.5s ease forwards;">
+            <div style="font-size: 4.5rem; color: #333; margin-bottom: 20px;">🖤</div>
+
+            <h3 class="fw-bold mb-3" style="color: var(--text-light);">Ваш список вподобань порожній</h3>
+
+            <p style="color: var(--text-light); opacity: 0.85; max-width: 500px; margin: 0 auto 30px auto; font-size: 1.05rem;">
+                Переглядайте каталог Blacksmith Store, додавайте взуття чи аксесуари, що сподобалися найбільше, щоб не загубити їх.
+            </p>
+
+            <a asp-controller="Home" asp-action="Catalog" class="btn px-5 py-3" style="background-color: var(--bs-orange); color: #000; font-weight: 800; border-radius: 8px;">
+                ПЕРЕЙТИ ДО КАТАЛОГУ
+            </a>
+        </div>
+    }
+</div>
+
+<style>
+    .premium-page-hero {
+        background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%);
+        padding: 70px 20px;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 2px solid var(--bs-orange);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .hero-bg-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60%;
+        height: 60%;
+        pointer-events: none;
+    }
+
+    .premium-hero-title {
+        color: #fff;
+        font-size: 3rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+    }
+
+    .premium-hero-subtitle {
+        color: #aaa;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+    }
+
+    .premium-counter-badge {
+        display: inline-block;
+        background-color: rgba(0,0,0,0.5);
+        border: 1px solid #333;
+        color: #ccc;
+        padding: 8px 25px;
+        border-radius: 30px;
+        font-weight: bold;
+        backdrop-filter: blur(5px);
+    }
+
+        .premium-counter-badge span {
+            color: #ff4d4d;
+            font-size: 1.1rem;
+            margin-left: 5px;
+        }
+
+    .premium-grid-item {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: gridFadeIn 0.5s ease forwards;
+    }
+
+    @@keyframes gridFadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const grid = document.querySelector('.staggered-grid');
+        if (grid) { Array.from(grid.children).forEach((item, index) => { item.style.animationDelay = `${index * 0.08}s`; }); }
+    });
+</script>

@@ -1,0 +1,613 @@
+﻿@model BlacksmithStoreWeb.Models.CatalogViewModel
+@{
+    ViewData["Title"] = "Каталог товарів";
+}
+
+<div class="premium-page-hero text-center mb-5">
+    <div class="hero-bg-glow"></div>
+    <div class="container position-relative" style="z-index: 2;">
+        <h1 class="premium-hero-title">
+            @{
+                string pType = Model.ProductType;
+                if (pType == "Взуття")
+                {
+                    <text>ВЗУТТЯ</text>
+                }
+                else if (pType == "Аксесуар")
+                {
+                    <text>АКСЕСУАРИ</text>
+                }
+                else if (Model.CategoryId == 1)
+                {
+                    <text>ЧОЛОВІЧЕ ВЗУТТЯ</text>
+                }
+                else if (Model.CategoryId == 2)
+                {
+                    <text>ЖІНОЧЕ ВЗУТТЯ</text>
+                }
+                else
+                {
+                    <text>КАТАЛОГ ТОВАРІВ</text>
+                }
+            }
+        </h1>
+        <p class="premium-hero-subtitle">Вибирай найкраще. Твій стиль починається тут.</p>
+        <div class="premium-counter-badge">
+            Знайдено моделей: <span>@Model.Products.Count</span>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5 pb-5">
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <div class="premium-filter-panel p-4">
+                <form asp-controller="Home" asp-action="Catalog" method="get" id="filterForm" onsubmit="event.preventDefault(); updateCatalogAjax();">
+
+                    @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                    {
+                        <input type="hidden" name="search" value="@Model.SearchQuery" />
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ProductType))
+                    {
+                        <input type="hidden" name="productType" value="@Model.ProductType" />
+                    }
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="filter-title">ФІЛЬТРИ</h5>
+                        <a asp-action="Catalog" asp-route-productType="@Model.ProductType" class="filter-clear">Очистити</a>
+                    </div>
+                    <hr class="filter-divider" />
+
+                    <div class="mb-4">
+                        <label class="premium-checkbox-container">
+                            <input type="checkbox" name="inStockOnly" value="true" @(Model.InStockOnly ? "checked" : "") onchange="updateCatalogAjax()">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text">Тільки в наявності</span>
+                        </label>
+                    </div>
+
+                    <div class="filter-group mb-4">
+                        <label class="filter-label">Кому:</label>
+                        <div class="custom-select-wrapper">
+                            <select name="categoryId" class="premium-select" onchange="updateCatalogAjax()">
+                                <option value="">Всі товари</option>
+                                @foreach (var cat in Model.Categories)
+                                {
+                                    <option value="@cat.CategoryId" selected="@(Model.CategoryId == cat.CategoryId)">@cat.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-group mb-4">
+                        <label class="filter-label">Підтип:</label>
+                        <div class="custom-select-wrapper">
+                            <select name="selectedSubtypeId" class="premium-select" onchange="updateCatalogAjax()">
+                                <option value="">Всі підтипи</option>
+                                @foreach (var sub in Model.Subtypes)
+                                {
+                                    <option value="@sub.SubtypeId" selected="@(Model.SelectedSubtypeId == sub.SubtypeId)">@sub.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-group mb-4">
+                        <label class="filter-label">Сезон:</label>
+                        <div class="custom-select-wrapper">
+                            <select name="selectedSeason" class="premium-select" onchange="updateCatalogAjax()">
+                                <option value="">Будь-який</option>
+                                @foreach (var season in Model.Seasons)
+                                {
+                                    <option value="@season" selected="@(Model.SelectedSeason == season)">@season</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    @if (Model.ShowSizeFilter)
+                    {
+                        <div class="filter-group mb-4">
+                            <label class="filter-label">Розмір (EU):</label>
+                            <div class="custom-select-wrapper">
+                                <select name="selectedSizeId" class="premium-select" onchange="updateCatalogAjax()">
+                                    <option value="">Всі розміри</option>
+                                    @foreach (var size in Model.Sizes)
+                                    {
+                                        <option value="@size.SizeId" selected="@(Model.SelectedSizeId == size.SizeId)">@size.Value</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="filter-group mb-4">
+                        <label class="filter-label">Колір:</label>
+                        <div class="custom-select-wrapper">
+                            <select name="selectedColorId" class="premium-select" onchange="updateCatalogAjax()">
+                                <option value="">Всі кольори</option>
+                                @foreach (var color in Model.Colors)
+                                {
+                                    <option value="@color.ColorId" selected="@(Model.SelectedColorId == color.ColorId)">@color.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-group mb-4 pb-2">
+                        <label class="filter-label mb-4">Ціна (₴):</label>
+
+                        <div class="range-slider-container">
+                            <div class="slider-track" id="sliderTrack"></div>
+                            <input type="range" min="0" max="15000" value="@(Model.MinPrice ?? 0)" id="slider-1" oninput="slideOne()">
+                            <input type="range" min="0" max="15000" value="@(Model.MaxPrice ?? 15000)" id="slider-2" oninput="slideTwo()">
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2 mt-4">
+                            <input type="number" name="minPrice" id="minPriceInput" value="@Model.MinPrice" class="premium-input text-center" placeholder="Від 0" min="0" max="15000" />
+                            <span class="text-muted">-</span>
+                            <input type="number" name="maxPrice" id="maxPriceInput" value="@Model.MaxPrice" class="premium-input text-center" placeholder="До 15000" min="0" max="15000" />
+                        </div>
+                        <button type="submit" class="btn-apply-price mt-3">Застосувати ціну</button>
+                    </div>
+
+                    <div class="filter-group mb-2">
+                        <label class="filter-label mb-3">Бренди:</label>
+                        <div class="brands-scroll-box">
+                            @foreach (var brand in Model.Brands)
+                            {
+                                <label class="premium-checkbox-container mb-2">
+                                    <input type="checkbox" name="brands" value="@brand.BrandId" @(Model.SelectedBrands.Contains(brand.BrandId) ? "checked" : "") onchange="updateCatalogAjax()">
+                                    <span class="checkmark"></span>
+                                    <span class="checkbox-text" style="font-weight: normal;">@brand.Name</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-9" id="catalogContentArea">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4 staggered-grid">
+                @if (Model.Products.Any())
+                {
+                    @foreach (var item in Model.Products)
+                    {
+                        @await Html.PartialAsync("_ProductCard", item)
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center mt-5 w-100 slide-up">
+                        <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;">📭</div>
+                        <h3 class="text-light fw-bold mb-3">За вашими фільтрами товарів не знайдено</h3>
+                        <p style="color: #888; margin-bottom: 30px;">Спробуйте змінити критерії пошуку або скинути фільтри.</p>
+                        <a asp-action="Catalog" asp-route-productType="@Model.ProductType" class="btn btn-apply-price px-5 py-3" style="display: inline-block; width: auto;">ОЧИСТИТИ ФІЛЬТРИ</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .premium-page-hero {
+        background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%);
+        padding: 70px 20px;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 2px solid var(--bs-orange);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .hero-bg-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60%;
+        height: 60%;
+        background: radial-gradient(circle, rgba(253, 126, 20, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .premium-hero-title {
+        color: #fff;
+        font-size: 3rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+    }
+
+    .premium-hero-subtitle {
+        color: #aaa;
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+    }
+
+    .premium-counter-badge {
+        display: inline-block;
+        background-color: rgba(0,0,0,0.5);
+        border: 1px solid #333;
+        color: #ccc;
+        padding: 8px 25px;
+        border-radius: 30px;
+        font-weight: bold;
+        backdrop-filter: blur(5px);
+    }
+
+        .premium-counter-badge span {
+            color: var(--bs-orange);
+            font-size: 1.1rem;
+            margin-left: 5px;
+        }
+
+    .premium-filter-panel {
+        background-color: #111;
+        border: 1px solid #252525;
+        border-radius: 16px;
+        position: sticky;
+        top: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        max-height: 88vh;
+        overflow-y: auto;
+    }
+
+        .premium-filter-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .premium-filter-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .premium-filter-panel::-webkit-scrollbar-thumb {
+            background-color: #333;
+            border-radius: 10px;
+        }
+
+            .premium-filter-panel::-webkit-scrollbar-thumb:hover {
+                background-color: var(--bs-orange);
+            }
+
+    .filter-title {
+        color: var(--bs-orange);
+        font-weight: 900;
+        margin: 0;
+        letter-spacing: 1px;
+    }
+
+    .filter-clear {
+        color: #666;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .filter-clear:hover {
+            color: #fff;
+        }
+
+    .filter-divider {
+        border-color: #333;
+        margin: 15px 0 25px 0;
+    }
+
+    .filter-label {
+        color: #fff;
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .premium-select, .premium-input {
+        width: 100%;
+        background-color: #1a1a1a;
+        color: #fff;
+        border: 1px solid #333;
+        padding: 10px 15px;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.3s;
+        appearance: none;
+    }
+
+        .premium-select:focus, .premium-input:focus {
+            border-color: var(--bs-orange);
+        }
+
+    .custom-select-wrapper {
+        position: relative;
+    }
+
+        .custom-select-wrapper::after {
+            content: '▼';
+            font-size: 0.7rem;
+            color: #888;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+    .range-slider-container {
+        position: relative;
+        width: 100%;
+        height: 6px;
+        margin-top: 15px;
+        background-color: #252525;
+        border-radius: 5px;
+    }
+
+        .range-slider-container input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            outline: none;
+            position: absolute;
+            margin: auto;
+            top: 0;
+            bottom: 0;
+            background-color: transparent;
+            pointer-events: none;
+        }
+
+    .slider-track {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        border-radius: 5px;
+        background-color: var(--bs-orange);
+    }
+
+    .range-slider-container input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 20px;
+        width: 20px;
+        background-color: #000;
+        border: 3px solid var(--bs-orange);
+        border-radius: 50%;
+        cursor: pointer;
+        pointer-events: auto;
+        box-shadow: 0 0 10px rgba(253, 126, 20, 0.5);
+        transition: transform 0.1s;
+    }
+
+        .range-slider-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background-color: var(--bs-orange);
+        }
+
+    .premium-checkbox-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding-left: 32px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+        .premium-checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+    .checkmark {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        height: 22px;
+        width: 22px;
+        background-color: #1a1a1a;
+        border: 1px solid #444;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .premium-checkbox-container:hover input ~ .checkmark {
+        border-color: #666;
+    }
+
+    .premium-checkbox-container input:checked ~ .checkmark {
+        background-color: var(--bs-orange);
+        border-color: var(--bs-orange);
+        box-shadow: 0 0 8px rgba(253, 126, 20, 0.4);
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 7px;
+        top: 3px;
+        width: 6px;
+        height: 12px;
+        border: solid #000;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .premium-checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    .checkbox-text {
+        color: #fff;
+        font-weight: bold;
+        font-size: 0.95rem;
+    }
+
+    .btn-apply-price {
+        width: 100%;
+        background-color: #1a1a1a;
+        color: var(--bs-orange);
+        border: 1px solid #333;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+        .btn-apply-price:hover {
+            background-color: var(--bs-orange);
+            color: #000;
+            border-color: var(--bs-orange);
+        }
+
+    .brands-scroll-box {
+        max-height: 220px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+        .brands-scroll-box::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .brands-scroll-box::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+
+    .premium-grid-item {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: gridFadeIn 0.5s ease forwards;
+    }
+
+    @@keyframes gridFadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script>
+    function initGridAnimation() {
+        const grid = document.querySelector('.staggered-grid');
+        if (grid) {
+            Array.from(grid.children).forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.08}s`;
+            });
+        }
+    }
+
+    function updateCatalogAjax() {
+        const form = document.getElementById('filterForm');
+        const url = new URL(form.action, window.location.origin);
+        const formData = new FormData(form);
+        const searchParams = new URLSearchParams();
+
+        for (const [key, value] of formData.entries()) {
+            if (value) searchParams.append(key, value);
+        }
+        url.search = searchParams.toString();
+
+        window.history.pushState({}, '', url);
+
+        const gridContainer = document.getElementById('catalogContentArea');
+        if(gridContainer) gridContainer.style.opacity = '0.5';
+
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const newGridContainer = doc.getElementById('catalogContentArea');
+                if (newGridContainer && gridContainer) {
+                    gridContainer.innerHTML = newGridContainer.innerHTML;
+                    gridContainer.style.opacity = '1';
+                    initGridAnimation();
+                }
+
+                const oldCounter = document.querySelector('.premium-counter-badge span');
+                const newCounter = doc.querySelector('.premium-counter-badge span');
+                if (oldCounter && newCounter) {
+                    oldCounter.innerText = newCounter.innerText;
+                }
+            })
+            .catch(error => {
+                console.error('Помилка AJAX:', error);
+                if(gridContainer) gridContainer.style.opacity = '1';
+            });
+    }
+
+    window.addEventListener('popstate', function() {
+        window.location.reload();
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        initGridAnimation();
+
+        let sliderOne = document.getElementById("slider-1");
+        let sliderTwo = document.getElementById("slider-2");
+        let displayValOne = document.getElementById("minPriceInput");
+        let displayValTwo = document.getElementById("maxPriceInput");
+        let sliderTrack = document.getElementById("sliderTrack");
+        let minGap = 200;
+
+        if (sliderOne && sliderTwo) {
+            let sliderMaxValue = sliderOne.max;
+
+            window.slideOne = function() {
+                if (parseInt(sliderTwo.value) - parseInt(sliderOne.value) <= minGap) {
+                    sliderOne.value = parseInt(sliderTwo.value) - minGap;
+                }
+                displayValOne.value = sliderOne.value;
+                fillColor();
+            };
+
+            window.slideTwo = function() {
+                if (parseInt(sliderTwo.value) - parseInt(sliderOne.value) <= minGap) {
+                    sliderTwo.value = parseInt(sliderOne.value) + minGap;
+                }
+                displayValTwo.value = sliderTwo.value;
+                fillColor();
+            };
+
+            window.fillColor = function() {
+                let percent1 = (sliderOne.value / sliderMaxValue) * 100;
+                let percent2 = (sliderTwo.value / sliderMaxValue) * 100;
+                sliderTrack.style.background = `linear-gradient(to right, #252525 ${percent1}%, var(--bs-orange) ${percent1}%, var(--bs-orange) ${percent2}%, #252525 ${percent2}%)`;
+            };
+
+            displayValOne.addEventListener("input", function() {
+                if (this.value === "") return;
+                let val = parseInt(this.value);
+                if (val > parseInt(sliderTwo.value) - minGap) val = parseInt(sliderTwo.value) - minGap;
+                if (val < 0) val = 0;
+                sliderOne.value = val;
+                fillColor();
+            });
+
+            displayValTwo.addEventListener("input", function() {
+                if (this.value === "") return;
+                let val = parseInt(this.value);
+                if (val < parseInt(sliderOne.value) + minGap) val = parseInt(sliderOne.value) + minGap;
+                if (val > sliderMaxValue) val = sliderMaxValue;
+                sliderTwo.value = val;
+                fillColor();
+            });
+
+            if (!displayValOne.value) { displayValOne.value = sliderOne.value; }
+            else { sliderOne.value = displayValOne.value; }
+
+            if (!displayValTwo.value) { displayValTwo.value = sliderTwo.value; }
+            else { sliderTwo.value = displayValTwo.value; }
+
+            fillColor();
+        }
+    });
+</script>

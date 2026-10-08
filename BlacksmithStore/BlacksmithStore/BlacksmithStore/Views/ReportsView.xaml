@@ -1,0 +1,211 @@
+﻿<UserControl x:Class="BlacksmithStore.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             Background="Transparent">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="{DynamicResource txtAnalyticsReports}" Foreground="{DynamicResource TextMainBrush}" FontSize="28" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <Border Grid.Row="1" Background="{DynamicResource BgCardBrush}" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+            <WrapPanel VerticalAlignment="Center">
+                <DatePicker x:Name="dpStart" Width="160" materialDesign:HintAssist.Hint="{DynamicResource txtDateFrom}" Foreground="{DynamicResource TextMainBrush}" Margin="8" materialDesign:HintAssist.IsFloating="True" FontSize="15"/>
+                <DatePicker x:Name="dpEnd" Width="160" materialDesign:HintAssist.Hint="{DynamicResource txtDateTo}" Foreground="{DynamicResource TextMainBrush}" Margin="8" materialDesign:HintAssist.IsFloating="True" FontSize="15"/>
+                <ComboBox x:Name="cbReportType" Width="300" materialDesign:HintAssist.Hint="{DynamicResource txtReportType}" Margin="8" Foreground="{DynamicResource TextMainBrush}" materialDesign:HintAssist.IsFloating="True" FontSize="15">
+                    <ComboBoxItem Content="Топ продажів (Найпопулярніші товари)"/>
+                    <ComboBoxItem Content="Аналітика по категоріях"/>
+                    <ComboBoxItem Content="Аналітика по брендах"/>
+                    <ComboBoxItem Content="Аналітика по підтипах"/>
+                    <ComboBoxItem Content="Статистика проданих розмірів"/>
+                    <ComboBoxItem Content="Динаміка продажів по днях"/>
+                    <ComboBoxItem Content="Критичний залишок (&lt; 5 од.)"/>
+                    <ComboBoxItem Content="Аналітика джерел (Магазин vs Веб-сайт)"/>
+                    <ComboBoxItem Content="Використання клубних карт"/>
+                </ComboBox>
+                <Button Content="{DynamicResource txtBtnGenerate}" Click="GenerateReport_Click" Margin="15,8" Background="{StaticResource MainGoldBrush}" Foreground="Black" Width="160" FontSize="14" FontWeight="Bold"/>
+                <Button Content="{DynamicResource txtBtnReset}" Click="ClearReportFilters_Click" Margin="10,8" Style="{StaticResource MaterialDesignFlatButton}" Foreground="#FF5252" FontSize="14" FontWeight="Bold"/>
+
+                <Button Click="ExportPdf_Click" ToolTip="Експорт у PDF" Margin="15,8,5,8" Background="#E53935" BorderThickness="0" Foreground="White" Height="36" Padding="12,0">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FilePdfBox" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="PDF" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Click="ExportWord_Click" ToolTip="Експорт у Word (RTF)" Margin="5,8,10,8" Background="#1E88E5" BorderThickness="0" Foreground="White" Height="36" Padding="12,0">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FileWordBox" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Word" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <UniformGrid Grid.Row="2" Columns="3" Margin="0,0,0,20">
+            <materialDesign:Card Background="{DynamicResource BgCardBrush}" Padding="15" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource txtTotalRevenue}" Foreground="{DynamicResource TextMutedBrush}" FontSize="14"/>
+                    <TextBlock x:Name="txtTotalRevenue" Text="0 грн" FontSize="26" Foreground="{StaticResource MainGoldBrush}" FontWeight="Bold"/>
+                </StackPanel>
+            </materialDesign:Card>
+            <materialDesign:Card Background="{DynamicResource BgCardBrush}" Padding="15" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource txtUnitsSold}" Foreground="{DynamicResource TextMutedBrush}" FontSize="14"/>
+                    <TextBlock x:Name="txtTotalUnits" Text="0" FontSize="26" Foreground="{DynamicResource TextMainBrush}" FontWeight="Bold"/>
+                </StackPanel>
+            </materialDesign:Card>
+            <materialDesign:Card Background="{DynamicResource BgCardBrush}" Padding="15" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource txtReceiptCount}" Foreground="{DynamicResource TextMutedBrush}" FontSize="14"/>
+                    <TextBlock x:Name="txtOrderCount" Text="0" FontSize="26" Foreground="{DynamicResource TextMainBrush}" FontWeight="Bold"/>
+                </StackPanel>
+            </materialDesign:Card>
+        </UniformGrid>
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <DataGrid Grid.Column="0" x:Name="dgReportResults" ItemsSource="{Binding ReportResults}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,0,15,0"
+                      Background="{DynamicResource BgDataGridBrush}" Foreground="{DynamicResource TextMainBrush}" RowBackground="{DynamicResource BgCardBrush}" ColumnWidth="*" FontSize="14"
+                      MouseDoubleClick="dgReportResults_MouseDoubleClick">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource BorderLineBrush}"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Name}" Width="2*">
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{DynamicResource txtObj}"/>
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Detail}" Width="*">
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{DynamicResource txtDetails}"/>
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Count}" Width="120">
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{DynamicResource txtQuantity}"/>
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Total, StringFormat={}{0:N0} грн}" Width="150">
+                        <DataGridTextColumn.Header>
+                            <TextBlock Text="{DynamicResource txtTotalSum}"/>
+                        </DataGridTextColumn.Header>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <materialDesign:Card Grid.Column="1" Background="{DynamicResource BgCardBrush}" Padding="15" UniformCornerRadius="10">
+                <Grid>
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Visibility="{Binding TrendVisibility}">
+                        <lvc:CartesianChart x:Name="exportTrendChart" Series="{Binding TrendSeries}" LegendLocation="None" MinWidth="{Binding ChartMinWidth}" Foreground="{DynamicResource TextMainBrush}">
+                            <lvc:CartesianChart.AxisX>
+                                <lvc:Axis Labels="{Binding TrendLabels}">
+                                    <lvc:Axis.Separator>
+                                        <lvc:Separator Step="1" />
+                                    </lvc:Axis.Separator>
+                                </lvc:Axis>
+                            </lvc:CartesianChart.AxisX>
+                            <lvc:CartesianChart.AxisY>
+                                <lvc:Axis LabelFormatter="{Binding YFormatter}"/>
+                            </lvc:CartesianChart.AxisY>
+                        </lvc:CartesianChart>
+                    </ScrollViewer>
+
+                    <lvc:PieChart x:Name="exportPieChart" Series="{Binding PieSeries}" Visibility="{Binding PieVisibility}" LegendLocation="Right" Foreground="{DynamicResource TextMainBrush}"/>
+
+                    <TextBlock Text="Графік" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Visibility="{Binding EmptyChartVisibility}"/>
+                </Grid>
+            </materialDesign:Card>
+        </Grid>
+
+        <Grid x:Name="ReportDetailsOverlay" Grid.RowSpan="4" Visibility="Collapsed" Background="#CC000000">
+            <materialDesign:Card Width="1000" Height="700" Background="{DynamicResource BgCardBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" UniformCornerRadius="10">
+                <Grid Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock x:Name="txtDetailTitle" Text="{DynamicResource txtDetailing}" Foreground="{DynamicResource TextMainBrush}" FontSize="24" FontWeight="Bold"/>
+                        <TextBlock x:Name="txtDetailSubtitle" Text="{DynamicResource txtSoldItemsList}" Foreground="{DynamicResource TextMutedBrush}" FontSize="16"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" x:Name="dgReportDetails" ItemsSource="{Binding ReportDetailItems}" AutoGenerateColumns="False" IsReadOnly="True" 
+                              Background="{DynamicResource BgDataGridBrush}" Foreground="{DynamicResource TextMainBrush}" RowBackground="{DynamicResource BgCardBrush}" ColumnWidth="*" FontSize="14">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Article}" Width="110">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource txtArt}"/>
+                                </DataGridTextColumn.Header>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="{StaticResource MainGoldBrush}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding ProductName}" Width="2*">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource txtName}"/>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Brand}" Width="120">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource txtBrand}"/>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding ProductType}" Width="100">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource txtColType}"/>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Size}" Width="80">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource txtSize}"/>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Quantity}" Width="80">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource txtQuantity}"/>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding SalePrice, StringFormat={}{0:N0} грн}" Width="120">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource txtColSalePrice}"/>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding SaleDate}" Width="120">
+                                <DataGridTextColumn.Header>
+                                    <TextBlock Text="{DynamicResource txtColDate}"/>
+                                </DataGridTextColumn.Header>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Button Grid.Row="2" Content="{DynamicResource txtBtnClose}" Click="CloseDetails_Click" HorizontalAlignment="Right" Margin="0,15,0,0" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource TextMainBrush}"/>
+                </Grid>
+            </materialDesign:Card>
+        </Grid>
+    </Grid>
+</UserControl>

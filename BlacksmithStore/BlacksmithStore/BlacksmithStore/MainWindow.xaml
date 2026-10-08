@@ -1,0 +1,120 @@
+﻿<Window x:Class="BlacksmithStore.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="Blacksmith Store" Height="900" Width="1450" MinWidth="1100" MinHeight="750"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized" Background="{DynamicResource BgMainBrush}"
+        FontSize="15">
+    <Window.Resources>
+        <Style x:Key="MenuButtonStyle" TargetType="RadioButton" BasedOn="{StaticResource MaterialDesignChoiceChipRadioButton}">
+            <Setter Property="Foreground" Value="{DynamicResource TextMainBrush}"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" Background="Transparent" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource MainGoldBrush}"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource BorderLineBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="MenuButtonGreen" TargetType="RadioButton" BasedOn="{StaticResource MenuButtonStyle}">
+            <Setter Property="Foreground" Value="#4CAF50"/>
+        </Style>
+        <Style x:Key="MenuButtonRed" TargetType="RadioButton" BasedOn="{StaticResource MenuButtonStyle}">
+            <Setter Property="Foreground" Value="#E53935"/>
+        </Style>
+        <Style x:Key="MenuButtonBlue" TargetType="RadioButton" BasedOn="{StaticResource MenuButtonStyle}">
+            <Setter Property="Foreground" Value="#1E88E5"/>
+        </Style>
+        <Style x:Key="MenuButtonPurple" TargetType="RadioButton" BasedOn="{StaticResource MenuButtonStyle}">
+            <Setter Property="Foreground" Value="#9C27B0"/>
+        </Style>
+        <Style x:Key="MenuButtonOrange" TargetType="RadioButton" BasedOn="{StaticResource MenuButtonStyle}">
+            <Setter Property="Foreground" Value="#F57C00"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="270"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="90"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource BgTopBarBrush}">
+            <DockPanel LastChildFill="True" Margin="20,0">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <Border Width="60" Height="60" Margin="0,0,15,0" CornerRadius="5" Background="Transparent">
+                        <Image Source="{Binding LogoImage}" Stretch="UniformToFill"/>
+                    </Border>
+                    <TextBlock Text="BLACKSMITH STORE" Foreground="{StaticResource MainGoldBrush}" FontSize="34" FontWeight="Bold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="BtnLanguage" Content="УКР" Click="BtnLanguage_Click" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource TextMainBrush}" FontSize="16" Margin="0,0,15,0" FontWeight="Bold"/>
+                    <materialDesign:PackIcon Kind="WeatherSunny" Width="24" Height="24" VerticalAlignment="Center" Foreground="{DynamicResource TextMainBrush}"/>
+                    <ToggleButton x:Name="ThemeToggle" Style="{StaticResource MaterialDesignSwitchToggleButton}" Margin="10,0" IsChecked="True" Click="ThemeToggle_Click"/>
+                    <materialDesign:PackIcon Kind="WeatherNight" Width="24" Height="24" Margin="0,0,20,0" VerticalAlignment="Center" Foreground="{DynamicResource TextMainBrush}"/>
+
+                    <materialDesign:PackIcon Kind="AccountCircle" Foreground="#42A5F5" Width="35" Height="35" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="txtUserNameTop" Text="..." Foreground="{DynamicResource TextMainBrush}" VerticalAlignment="Center" Margin="10,0" FontSize="16"/>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
+
+        <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource BgSidebarBrush}" Padding="10">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <StackPanel x:Name="SectionSeller">
+                        <TextBlock Text="{DynamicResource txtRoleSeller}" Foreground="{DynamicResource TextMutedBrush}" FontSize="13" Margin="10,10,0,5" FontWeight="Bold"/>
+                        <RadioButton x:Name="NavHome" GroupName="Menu" Tag="Home" Content="{DynamicResource txtMenuHome}" Style="{StaticResource MenuButtonStyle}" IsChecked="True" Checked="MenuButton_Checked"/>
+                        <RadioButton x:Name="NavCatalog" GroupName="Menu" Tag="Catalog" Content="{DynamicResource txtMenuCatalog}" Style="{StaticResource MenuButtonStyle}" Checked="MenuButton_Checked"/>
+                        <RadioButton x:Name="NavShoes" GroupName="Menu" Tag="Shoes" Content="{DynamicResource txtMenuShoes}" Style="{StaticResource MenuButtonStyle}" Checked="MenuButton_Checked"/>
+                        <RadioButton x:Name="NavAccessories" GroupName="Menu" Tag="Accessories" Content="{DynamicResource txtMenuAccessories}" Style="{StaticResource MenuButtonStyle}" Checked="MenuButton_Checked"/>
+                        <RadioButton x:Name="NavSales" GroupName="Menu" Tag="Sales" Content="{DynamicResource txtMenuSales}" Style="{StaticResource MenuButtonGreen}" Checked="MenuButton_Checked"/>
+                        <RadioButton x:Name="NavReturns" GroupName="Menu" Tag="Returns" Content="{DynamicResource txtMenuReturns}" Style="{StaticResource MenuButtonRed}" Checked="MenuButton_Checked"/>
+                        <RadioButton x:Name="NavClubCard" GroupName="Menu" Tag="ClubCard" Content="{DynamicResource txtMenuClubCard}" Style="{StaticResource MenuButtonBlue}" Checked="MenuButton_Checked"/>
+                    </StackPanel>
+                    <StackPanel x:Name="SectionManager" Margin="0,15,0,0">
+                        <TextBlock Text="{DynamicResource txtRoleManager}" Foreground="{DynamicResource TextMutedBrush}" FontSize="13" Margin="10,10,0,5" FontWeight="Bold"/>
+                        <RadioButton x:Name="NavWebOrders" GroupName="Menu" Tag="WebOrders" Style="{StaticResource MenuButtonPurple}" Checked="MenuButton_Checked">
+                            <RadioButton.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource txtMenuWebOrders}" VerticalAlignment="Center"/>
+                                    <Border x:Name="BadgeWebOrders" Background="#FF5252" CornerRadius="10" MinWidth="22" Height="22" Margin="10,0,0,0" Visibility="Collapsed">
+                                        <TextBlock x:Name="TxtWebOrdersCount" Text="0" Foreground="White" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="6,0"/>
+                                    </Border>
+                                </StackPanel>
+                            </RadioButton.Content>
+                        </RadioButton>
+                        <RadioButton x:Name="NavAddProduct" GroupName="Menu" Tag="AddProduct" Content="{DynamicResource txtMenuAddProduct}" Style="{StaticResource MenuButtonOrange}" Checked="MenuButton_Checked"/>
+                        <RadioButton x:Name="NavReports" GroupName="Menu" Tag="Reports" Content="{DynamicResource txtMenuReports}" Style="{StaticResource MenuButtonGreen}" Checked="MenuButton_Checked"/>
+                    </StackPanel>
+                    <StackPanel x:Name="SectionAdmin" Margin="0,15,0,0">
+                        <TextBlock Text="{DynamicResource txtRoleAdmin}" Foreground="{DynamicResource TextMutedBrush}" FontSize="13" Margin="10,10,0,5" FontWeight="Bold"/>
+                        <RadioButton x:Name="NavAddSeller" GroupName="Menu" Tag="AddSeller" Content="{DynamicResource txtMenuAddSeller}" Style="{StaticResource MenuButtonBlue}" Checked="MenuButton_Checked"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <ContentControl x:Name="MainContent" Grid.Row="1" Grid.Column="1" Margin="20"/>
+    </Grid>
+</Window>

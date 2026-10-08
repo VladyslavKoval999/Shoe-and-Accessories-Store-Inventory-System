@@ -1,0 +1,116 @@
+﻿<UserControl x:Class="BlacksmithStore.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             Background="Transparent">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock x:Name="txtWelcomeUser" Text="" Foreground="{DynamicResource TextMainBrush}" FontSize="28" FontWeight="Bold"/>
+            <TextBlock x:Name="txtRoleDescription" Text="" Foreground="{StaticResource MainGoldBrush}" FontSize="15" Margin="2,5,0,0"/>
+        </StackPanel>
+
+        <UniformGrid x:Name="StatsPanel" Grid.Row="1" Columns="3" Margin="0,0,0,20">
+
+            <materialDesign:Card Background="{DynamicResource BgCardBrush}" Margin="6" Padding="15" UniformCornerRadius="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource txtRevenueToday}" Foreground="{DynamicResource TextMutedBrush}" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="statSalesToday" Text="0 ₴" Foreground="{StaticResource MainGoldBrush}" FontSize="26" FontWeight="Bold" Margin="0,8,0,0"/>
+                    </StackPanel>
+                    <materialDesign:PackIcon Grid.Column="1" Kind="CashMultiple" Width="36" Height="36" Foreground="#81C784" Opacity="0.8" VerticalAlignment="Center"/>
+                </Grid>
+            </materialDesign:Card>
+
+            <materialDesign:Card Background="{DynamicResource BgCardBrush}" Margin="6" Padding="15" UniformCornerRadius="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource txtSalesToday}" Foreground="{DynamicResource TextMutedBrush}" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="statSalesCount" Text="0" Foreground="#BA68C8" FontSize="26" FontWeight="Bold" Margin="0,8,0,0"/>
+                    </StackPanel>
+                    <materialDesign:PackIcon Grid.Column="1" Kind="ReceiptTextOutline" Width="36" Height="36" Foreground="#BA68C8" Opacity="0.8" VerticalAlignment="Center"/>
+                </Grid>
+            </materialDesign:Card>
+
+            <materialDesign:Card Background="{DynamicResource BgCardBrush}" Margin="6" Padding="15" UniformCornerRadius="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource txtClubMembers}" Foreground="{DynamicResource TextMutedBrush}" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="statClubMembers" Text="0" Foreground="#64B5F6" FontSize="26" FontWeight="Bold" Margin="0,8,0,0"/>
+                    </StackPanel>
+                    <materialDesign:PackIcon Grid.Column="1" Kind="AccountGroup" Width="36" Height="36" Foreground="#64B5F6" Opacity="0.8" VerticalAlignment="Center"/>
+                </Grid>
+            </materialDesign:Card>
+        </UniformGrid>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <UniformGrid x:Name="ActionsPanel" Columns="4" VerticalAlignment="Top">
+                <Button x:Name="TileSales" Tag="Sales" Click="Tile_Click" Height="170" Margin="6" Style="{StaticResource MaterialDesignFlatButton}" Background="{DynamicResource BgCardBrush}" Padding="0" HorizontalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="CashRegister" Width="54" Height="54" Foreground="#81C784" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource txtTileSales}" Margin="0,15,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextMainBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="TileReturns" Tag="Returns" Click="Tile_Click" Height="170" Margin="6" Style="{StaticResource MaterialDesignFlatButton}" Background="{DynamicResource BgCardBrush}" Padding="0" HorizontalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="KeyboardReturn" Width="54" Height="54" Foreground="#FF5252" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource txtTileReturns}" Margin="0,15,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextMainBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="TileClubCard" Tag="ClubCard" Click="Tile_Click" Height="170" Margin="6" Style="{StaticResource MaterialDesignFlatButton}" Background="{DynamicResource BgCardBrush}" Padding="0" HorizontalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="CardAccountDetailsStarOutline" Width="54" Height="54" Foreground="#64B5F6" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource txtTileClubCard}" Margin="0,15,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextMainBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="TileStock" Tag="Catalog" Click="Tile_Click" Height="170" Margin="6" Style="{StaticResource MaterialDesignFlatButton}" Background="{DynamicResource BgCardBrush}" Padding="0" HorizontalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="Warehouse" Width="54" Height="54" Foreground="#FFB74D" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource txtTileCatalog}" Margin="0,15,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextMainBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="TileOnlineOrders" Tag="WebOrders" Click="Tile_Click" Height="170" Margin="6" Style="{StaticResource MaterialDesignFlatButton}" Background="{DynamicResource BgCardBrush}" Padding="0" HorizontalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="Web" Width="54" Height="54" Foreground="#BA68C8" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource txtTileWebOrders}" Margin="0,15,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextMainBrush}" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="TileAddProduct" Tag="AddProduct" Click="Tile_Click" Height="170" Margin="6" Style="{StaticResource MaterialDesignFlatButton}" Background="{DynamicResource BgCardBrush}" Padding="0" HorizontalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="PlusCircleOutline" Width="54" Height="54" Foreground="{StaticResource MainGoldBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource txtTileAddProduct}" Margin="0,15,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextMainBrush}" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="TileAdminReports" Tag="Reports" Click="Tile_Click" Height="170" Margin="6" Style="{StaticResource MaterialDesignFlatButton}" Background="{DynamicResource BgCardBrush}" Padding="0" HorizontalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="ChartBoxOutline" Width="54" Height="54" Foreground="#4DB6AC" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource txtTileReports}" Margin="0,15,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextMainBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="TileStaff" Tag="AddSeller" Click="Tile_Click" Height="170" Margin="6" Style="{StaticResource MaterialDesignFlatButton}" Background="{DynamicResource BgCardBrush}" Padding="0" HorizontalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="AccountGroup" Width="54" Height="54" Foreground="#64B5F6" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource txtTileStaff}" Margin="0,15,0,0" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextMainBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </UniformGrid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
